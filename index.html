@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nizamuddin PS — Revenue Operations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0f1a2e;
+    --ink-soft:#3a4762;
+    --paper:#f6f4ef;
+    --paper-2:#efece4;
+    --line:#d8d3c7;
+    --blue:#2f3df2;
+    --blue-deep:#1b1f6b;
+    --signal:#e8453c;
+    --green:#16855a;
+    --gold:#c98a1e;
+    --white:#ffffff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  .wrap{max-width:1120px;margin:0 auto;padding:0 28px}
+  .mono{font-family:'JetBrains Mono',monospace}
+  .serif{font-family:'Fraunces',serif}
+
+  /* ---------- TOP BAR ---------- */
+  .topbar{
+    position:sticky;top:0;z-index:50;
+    background:rgba(246,244,239,.82);
+    backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:62px}
+  .logo{font-family:'Fraunces',serif;font-weight:600;font-size:1.15rem;letter-spacing:-.01em}
+  .logo .dot{color:var(--blue)}
+  .nav{display:flex;gap:26px}
+  .nav a{
+    text-decoration:none;color:var(--ink-soft);font-size:.82rem;font-weight:500;
+    letter-spacing:.02em;transition:color .2s;
+  }
+  .nav a:hover{color:var(--blue)}
+  @media(max-width:720px){.nav{display:none}}
+
+  /* ---------- HERO ---------- */
+  .hero{padding:78px 0 54px;position:relative}
+  .eyebrow{
+    font-family:'JetBrains Mono',monospace;font-size:.74rem;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--blue);margin-bottom:22px;
+  }
+  .hero h1{
+    font-family:'Fraunces',serif;font-weight:600;
+    font-size:clamp(2.6rem,6vw,4.6rem);line-height:1.02;letter-spacing:-.02em;
+    max-width:14ch;margin-bottom:24px;
+  }
+  .hero h1 em{font-style:italic;color:var(--blue)}
+  .hero .lede{
+    font-size:1.12rem;color:var(--ink-soft);max-width:60ch;margin-bottom:34px;
+  }
+  .hero-meta{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;font-size:.85rem;color:var(--ink-soft)}
+  .hero-meta .pill{
+    display:inline-flex;align-items:center;gap:7px;
+    background:var(--white);border:1px solid var(--line);
+    padding:7px 14px;border-radius:100px;font-weight:500;color:var(--ink);
+  }
+  .hero-meta .pill .d{width:7px;height:7px;border-radius:50%;background:var(--green)}
+
+  /* ---------- HEADLINE STAT STRIP ---------- */
+  .impact{
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    background:var(--paper-2);
+  }
+  .impact .wrap{
+    display:grid;grid-template-columns:repeat(4,1fr);
+  }
+  .impact .cell{
+    padding:34px 26px;border-right:1px solid var(--line);position:relative;
+  }
+  .impact .cell:last-child{border-right:none}
+  .impact .num{
+    font-family:'Fraunces',serif;font-weight:600;font-size:2.5rem;line-height:1;
+    letter-spacing:-.02em;margin-bottom:8px;display:flex;align-items:baseline;gap:6px;
+  }
+  .impact .num .arrow{color:var(--green);font-size:1.1rem;font-family:'JetBrains Mono',monospace}
+  .impact .lbl{font-size:.8rem;color:var(--ink-soft);line-height:1.4}
+  .impact .lbl b{color:var(--ink);font-weight:600}
+  @media(max-width:860px){
+    .impact .wrap{grid-template-columns:repeat(2,1fr)}
+    .impact .cell:nth-child(2){border-right:none}
+    .impact .cell:nth-child(1),.impact .cell:nth-child(2){border-bottom:1px solid var(--line)}
+  }
+  @media(max-width:480px){
+    .impact .wrap{grid-template-columns:1fr}
+    .impact .cell{border-right:none;border-bottom:1px solid var(--line)}
+    .impact .cell:last-child{border-bottom:none}
+  }
+
+  /* ---------- SECTION SCAFFOLD ---------- */
+  section.block{padding:74px 0}
+  .sec-head{margin-bottom:46px;max-width:64ch}
+  .sec-tag{
+    font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--blue);margin-bottom:14px;display:flex;gap:12px;align-items:center;
+  }
+  .sec-tag::before{content:"";width:26px;height:1px;background:var(--blue)}
+  .sec-head h2{
+    font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.8rem,3.4vw,2.6rem);
+    letter-spacing:-.02em;line-height:1.08;margin-bottom:14px;
+  }
+  .sec-head p{color:var(--ink-soft);font-size:1.02rem}
+
+  /* ---------- THE MANDATE ---------- */
+  .mandate{background:var(--ink);color:#e9ecf5}
+  .mandate .sec-tag{color:#8e9bff}
+  .mandate .sec-tag::before{background:#8e9bff}
+  .mandate h2{color:#fff}
+  .mandate .grid{display:grid;grid-template-columns:1.1fr 1fr;gap:54px;align-items:start}
+  .mandate .body p{color:#aeb6cc;margin-bottom:18px;font-size:1.02rem}
+  .mandate .body p strong{color:#fff;font-weight:600}
+  .pillars{display:flex;flex-direction:column;gap:2px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:14px;overflow:hidden}
+  .pillar{padding:20px 22px;background:#141f37;display:flex;gap:16px;align-items:flex-start}
+  .pillar .ix{font-family:'JetBrains Mono',monospace;font-size:.75rem;color:#8e9bff;padding-top:3px}
+  .pillar h4{font-size:.98rem;font-weight:600;color:#fff;margin-bottom:4px}
+  .pillar p{font-size:.85rem;color:#9aa3bd}
+  @media(max-width:820px){.mandate .grid{grid-template-columns:1fr;gap:36px}}
+
+  /* ---------- REPORTS / WORK ---------- */
+  .reports .stack{display:flex;flex-direction:column;gap:18px}
+  .report{
+    background:var(--white);border:1px solid var(--line);border-radius:16px;
+    padding:28px 30px;display:grid;grid-template-columns:54px 1fr auto;gap:22px;align-items:start;
+    transition:transform .25s ease, box-shadow .25s ease, border-color .25s;
+  }
+  .report:hover{transform:translateY(-3px);box-shadow:0 14px 34px -18px rgba(15,26,46,.4);border-color:var(--blue)}
+  .report .rix{
+    font-family:'JetBrains Mono',monospace;font-size:.8rem;font-weight:600;color:var(--blue);
+    border:1px solid var(--line);border-radius:10px;width:54px;height:54px;
+    display:flex;align-items:center;justify-content:center;background:var(--paper-2);
+  }
+  .report .rbody h3{font-family:'Fraunces',serif;font-size:1.25rem;font-weight:600;margin-bottom:6px;letter-spacing:-.01em}
+  .report .rbody p{font-size:.92rem;color:var(--ink-soft);margin-bottom:12px;max-width:62ch}
+  .tags{display:flex;flex-wrap:wrap;gap:7px}
+  .tag{
+    font-family:'JetBrains Mono',monospace;font-size:.68rem;letter-spacing:.03em;
+    background:var(--paper-2);border:1px solid var(--line);color:var(--ink-soft);
+    padding:4px 9px;border-radius:6px;
+  }
+  .report .rmetric{text-align:right;min-width:120px}
+  .report .rmetric .v{font-family:'Fraunces',serif;font-weight:600;font-size:1.7rem;line-height:1;color:var(--ink)}
+  .report .rmetric .v.up{color:var(--green)}
+  .report .rmetric .k{font-size:.72rem;color:var(--ink-soft);margin-top:5px}
+  @media(max-width:720px){
+    .report{grid-template-columns:44px 1fr;gap:16px}
+    .report .rix{width:44px;height:44px}
+    .report .rmetric{grid-column:1/-1;text-align:left;display:flex;align-items:baseline;gap:10px;border-top:1px solid var(--line);padding-top:14px}
+    .report .rmetric .k{margin-top:0}
+  }
+
+  /* ---------- SYSTEMS BUILT (the web app) ---------- */
+  .systems{background:var(--paper-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .sysgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  .syscard{
+    background:var(--white);border:1px solid var(--line);border-radius:16px;padding:26px;
+    display:flex;flex-direction:column;gap:12px;
+  }
+  .syscard .ico{
+    width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;
+    background:var(--blue);color:#fff;font-family:'JetBrains Mono',monospace;font-weight:600;font-size:1rem;
+  }
+  .syscard.alt .ico{background:var(--ink)}
+  .syscard h4{font-family:'Fraunces',serif;font-size:1.18rem;font-weight:600;letter-spacing:-.01em}
+  .syscard p{font-size:.88rem;color:var(--ink-soft)}
+  .syscard .stack-row{margin-top:auto;display:flex;flex-wrap:wrap;gap:6px;padding-top:6px}
+  @media(max-width:820px){.sysgrid{grid-template-columns:1fr}}
+
+  /* product shots */
+  .shots{margin-top:44px}
+  .shotlbl{font-family:'JetBrains Mono',monospace;font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:16px;display:flex;gap:12px;align-items:center}
+  .shotlbl::before{content:"";width:26px;height:1px;background:var(--ink-soft)}
+  .shotrow{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+  .shot{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--white);box-shadow:0 8px 24px -18px rgba(15,26,46,.5)}
+  .shot img{width:100%;display:block;aspect-ratio:16/9;object-fit:cover;object-position:top left}
+  .shot .cap{padding:13px 16px;font-size:.8rem;color:var(--ink-soft);border-top:1px solid var(--line)}
+  .shot .cap b{color:var(--ink);font-weight:600;display:block;font-size:.86rem;margin-bottom:2px}
+  @media(max-width:820px){.shotrow{grid-template-columns:1fr}}
+
+  /* ---------- LIVE TOOLS ---------- */
+  .tools{background:var(--paper-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+  .toolgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .toolcard{display:flex;flex-direction:column;background:var(--white);border:1px solid var(--line);
+    border-radius:16px;overflow:hidden;text-decoration:none;color:inherit;
+    transition:transform .25s ease,box-shadow .25s ease,border-color .25s}
+  .toolcard:hover{transform:translateY(-4px);box-shadow:0 18px 40px -22px rgba(15,26,46,.5);border-color:var(--blue)}
+  .toolcard .thumb{aspect-ratio:16/10;overflow:hidden;border-bottom:1px solid var(--line);background:var(--paper)}
+  .toolcard .thumb img{width:100%;height:100%;object-fit:cover;object-position:top left;transition:transform .4s ease}
+  .toolcard:hover .thumb img{transform:scale(1.04)}
+  .toolcard .tbody{padding:20px 22px;display:flex;flex-direction:column;gap:8px;flex:1}
+  .toolcard h4{font-family:'Fraunces',serif;font-size:1.18rem;font-weight:600;letter-spacing:-.01em}
+  .toolcard p{font-size:.86rem;color:var(--ink-soft);flex:1}
+  .toolcard .open{font-family:'JetBrains Mono',monospace;font-size:.74rem;letter-spacing:.04em;
+    color:var(--blue);font-weight:600;display:flex;align-items:center;gap:6px;margin-top:4px}
+  .toolcard .stack-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+  @media(max-width:820px){.toolgrid{grid-template-columns:1fr}}
+
+  /* ---------- HV CASE STUDY ---------- */
+  .case .panel{
+    background:var(--ink);color:#fff;border-radius:22px;padding:48px;
+    display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;
+  }
+  .case .panel .sec-tag{color:#8e9bff}
+  .case .panel .sec-tag::before{background:#8e9bff}
+  .case .panel h2{font-family:'Fraunces',serif;font-size:clamp(1.6rem,3vw,2.3rem);font-weight:600;letter-spacing:-.02em;line-height:1.1;margin-bottom:16px}
+  .case .panel p{color:#aeb6cc;font-size:.96rem;margin-bottom:14px}
+  .case .panel p strong{color:#fff}
+  .gauge{display:flex;flex-direction:column;gap:24px}
+  .bar{}
+  .bar .top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px}
+  .bar .top .name{font-size:.85rem;color:#aeb6cc}
+  .bar .top .val{font-family:'Fraunces',serif;font-weight:600;font-size:1.5rem}
+  .bar .track{height:12px;border-radius:100px;background:rgba(255,255,255,.1);overflow:hidden}
+  .bar .fill{height:100%;border-radius:100px;width:0;transition:width 1.4s cubic-bezier(.2,.8,.2,1)}
+  .bar.before .fill{background:#6b7596}
+  .bar.after .fill{background:linear-gradient(90deg,#2f3df2,#16855a)}
+  .bar.rev .fill{background:linear-gradient(90deg,#c98a1e,#e8453c)}
+  @media(max-width:820px){.case .panel{grid-template-columns:1fr;padding:34px}}
+
+  /* ---------- EXPERIENCE TIMELINE ---------- */
+  .exp .tl{position:relative;padding-left:30px}
+  .exp .tl::before{content:"";position:absolute;left:6px;top:8px;bottom:8px;width:2px;background:var(--line)}
+  .tlrow{position:relative;padding:0 0 38px 0}
+  .tlrow:last-child{padding-bottom:0}
+  .tlrow::before{content:"";position:absolute;left:-30px;top:6px;width:14px;height:14px;border-radius:50%;background:var(--paper);border:3px solid var(--blue)}
+  .tlrow.muted::before{border-color:var(--line)}
+  .tlrow .yr{font-family:'JetBrains Mono',monospace;font-size:.76rem;color:var(--blue);letter-spacing:.04em;margin-bottom:4px}
+  .tlrow.muted .yr{color:var(--ink-soft)}
+  .tlrow h4{font-size:1.05rem;font-weight:600;margin-bottom:2px}
+  .tlrow .role{font-size:.88rem;color:var(--ink-soft);margin-bottom:8px}
+  .tlrow p{font-size:.9rem;color:var(--ink-soft);max-width:64ch}
+
+  /* ---------- SKILLS ---------- */
+  .skills .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px}
+  .skcol h5{font-family:'JetBrains Mono',monospace;font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:14px}
+  .skcol ul{list-style:none;display:flex;flex-direction:column;gap:9px}
+  .skcol li{font-size:.92rem;color:var(--ink-soft);padding-left:16px;position:relative}
+  .skcol li::before{content:"–";position:absolute;left:0;color:var(--blue)}
+  @media(max-width:820px){.skills .grid{grid-template-columns:repeat(2,1fr);gap:30px}}
+  @media(max-width:460px){.skills .grid{grid-template-columns:1fr}}
+
+  /* ---------- CONTACT ---------- */
+  .contact{background:var(--ink);color:#fff;padding:80px 0}
+  .contact .sec-tag{color:#8e9bff}
+  .contact .sec-tag::before{background:#8e9bff}
+  .contact h2{font-family:'Fraunces',serif;font-size:clamp(2rem,4vw,3.2rem);font-weight:600;letter-spacing:-.02em;line-height:1.05;margin-bottom:20px;max-width:18ch}
+  .contact h2 em{font-style:italic;color:#8e9bff}
+  .contact p{color:#aeb6cc;max-width:54ch;margin-bottom:32px;font-size:1.05rem}
+  .ctas{display:flex;flex-wrap:wrap;gap:14px}
+  .btn{
+    display:inline-flex;align-items:center;gap:9px;text-decoration:none;
+    font-weight:600;font-size:.92rem;padding:14px 24px;border-radius:100px;transition:transform .2s,background .2s;
+  }
+  .btn.primary{background:var(--blue);color:#fff}
+  .btn.primary:hover{transform:translateY(-2px);background:#2530d8}
+  .btn.ghost{border:1px solid rgba(255,255,255,.25);color:#fff}
+  .btn.ghost:hover{border-color:#fff;transform:translateY(-2px)}
+  footer{padding:30px 0;text-align:center;font-size:.8rem;color:var(--ink-soft)}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+  .reveal.in{opacity:1;transform:none}
+  @media(prefers-reduced-motion:reduce){
+    .reveal{opacity:1;transform:none;transition:none}
+    .bar .fill{transition:none}
+    html{scroll-behavior:auto}
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="wrap">
+    <div class="logo">Nizamuddin PS<span class="dot">.</span></div>
+    <nav class="nav">
+      <a href="#mandate">The Mandate</a>
+      <a href="#reports">Reporting</a>
+      <a href="#tools">Live Tools</a>
+      <a href="#systems">Systems</a>
+      <a href="#case">Impact</a>
+      <a href="#exp">Experience</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <div class="eyebrow reveal">Revenue Operations · Sales Analytics · GTM Systems</div>
+    <h1 class="reveal">I turn raw sales activity into <em>revenue you can forecast.</em></h1>
+    <p class="lede reveal">Sales Operations specialist at Even Healthcare and part of the founding SalesOps pilot — built the function from zero. From hourly calling metrics to live forecasting, field-rep tracking, and AI-built operational tooling, I work where sales, data, and process meet.</p>
+    <div class="hero-meta reveal">
+      <span class="pill"><span class="d"></span>Open to Revenue Operations roles</span>
+      <span>Bengaluru, India</span>
+      <span>·</span>
+      <span>+91 96324 37944</span>
+      <span>·</span>
+      <span>Even Health · Simplilearn · 24[7].ai</span>
+    </div>
+  </div>
+</section>
+
+<!-- IMPACT STRIP -->
+<section class="impact">
+  <div class="wrap">
+    <div class="cell reveal">
+      <div class="num">35<span class="arrow">→</span>67<span style="font-size:1.4rem">%</span></div>
+      <div class="lbl"><b>Home Visit completion</b> lifted in 4 months through live tracking + feedback loops</div>
+    </div>
+    <div class="cell reveal">
+      <div class="num">₹1.5<span class="arrow">→</span>₹3<span style="font-size:1.4rem">cr</span></div>
+      <div class="lbl"><b>Monthly revenue doubled</b> with the SalesOps systems in place</div>
+    </div>
+    <div class="cell reveal">
+      <div class="num">239</div>
+      <div class="lbl"><b>Field reps & agents</b> tracked live across 6+ cities on tooling I helped build</div>
+    </div>
+    <div class="cell reveal">
+      <div class="num">0<span class="arrow">→</span>1</div>
+      <div class="lbl"><b>Founding SalesOps function</b> designed and stood up from scratch</div>
+    </div>
+  </div>
+</section>
+
+<!-- THE MANDATE -->
+<section class="block mandate" id="mandate">
+  <div class="wrap">
+    <div class="grid">
+      <div class="body reveal">
+        <div class="sec-tag">Starting from zero</div>
+        <h2>The pilot batch that built SalesOps from scratch.</h2>
+        <p>When I joined Even Healthcare, there was no SalesOps function — <strong>we were the pilot batch and we started everything from the ground up.</strong> No reports, no dashboards, no visibility into what the floor or the field was actually doing.</p>
+        <p>I built the input-metric layer first: hourly calling reports, Good Lead marks, and Home Visits booked every half hour. Then the predictive layer on top — <strong>HV forecasts three days out, an expected-closure funnel for the next day, and daily activity funnels</strong> showing call connection rates and which leads were genuinely worked.</p>
+        <p>The thesis was simple: if you can see the inputs cleanly, you can forecast the revenue. Everything that followed — field tracking, dashboards, the auto-dialer, the live HV report — was built to make that loop tighter.</p>
+      </div>
+      <div class="pillars reveal">
+        <div class="pillar"><div class="ix">01</div><div><h4>Input visibility</h4><p>Hourly calling, GL marks, HV bookings captured at 30–60 min cadence.</p></div></div>
+        <div class="pillar"><div class="ix">02</div><div><h4>Forecasting</h4><p>3-day HV forecast and next-day closure funnel built off live marks.</p></div></div>
+        <div class="pillar"><div class="ix">03</div><div><h4>Field accountability</h4><p>RM tracking initiated — random check-ins plus a live location/attendance app.</p></div></div>
+        <div class="pillar"><div class="ix">04</div><div><h4>Lead engine</h4><p>Even Pay clinic network (flat ₹250 cx discount) to grow lead generation and flow.</p></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- REPORTING -->
+<section class="block reports" id="reports">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-tag">Reporting that moved the number</div>
+      <h2>Reports built for decisions, not decoration.</h2>
+      <p>Each report below was designed to change what the floor or field did the next hour — and to make tomorrow's revenue legible today.</p>
+    </div>
+    <div class="stack">
+
+      <div class="report reveal">
+        <div class="rix">R1</div>
+        <div class="rbody">
+          <h3>Live HV Status Report</h3>
+          <p>Same-day Home Visit outcomes were a black box — no one could see what happened to HVs scheduled for today. I scoped the CRM changes with the CRM team and built a live report giving real-time updates on every HV scheduled for the day. This became the backbone of the 35%→67% completion lift.</p>
+          <div class="tags"><span class="tag">CRM redesign</span><span class="tag">Live reporting</span><span class="tag">HV tracking</span></div>
+        </div>
+        <div class="rmetric"><div class="v up">+32 pts</div><div class="k">HV completion gain</div></div>
+      </div>
+
+      <div class="report reveal">
+        <div class="rix">R2</div>
+        <div class="rbody">
+          <h3>HV Forecast & Closure Funnel</h3>
+          <p>A 3-day forward Home Visit forecast built from live HV and Good Lead marks, plus an expected-closure funnel projecting tomorrow's conversions. Gave leadership a reliable forward view of revenue instead of a rear-view mirror.</p>
+          <div class="tags"><span class="tag">Forecasting</span><span class="tag">Funnel modeling</span><span class="tag">Sheets / Apps Script</span></div>
+        </div>
+        <div class="rmetric"><div class="v">3-day</div><div class="k">forward visibility</div></div>
+      </div>
+
+      <div class="report reveal">
+        <div class="rix">R3</div>
+        <div class="rbody">
+          <h3>Daily Activity & Connection Funnel</h3>
+          <p>Hourly calling reports paired with a daily activity funnel — call connection rate of the day and which leads agents actually worked on. Surfaced effort vs. output gaps across a large inside-sales floor in near real time.</p>
+          <div class="tags"><span class="tag">Inside sales</span><span class="tag">COUNTIFS / SUMIFS</span><span class="tag">Hourly cadence</span></div>
+        </div>
+        <div class="rmetric"><div class="v">Hourly</div><div class="k">refresh cadence</div></div>
+      </div>
+
+      <div class="report reveal">
+        <div class="rix">R4</div>
+        <div class="rbody">
+          <h3>Looker Review Dashboards — IS, RM & Clinic</h3>
+          <p>A full Looker Studio dashboard suite: weekly/monthly Inside Sales review, an RM dashboard for daily leads generated, and a clinic dashboard attributing lead volume to each clinic. One source of truth for performance reviews across the org.</p>
+          <div class="tags"><span class="tag">Looker Studio</span><span class="tag">Attribution</span><span class="tag">Review system</span></div>
+        </div>
+        <div class="rmetric"><div class="v">3</div><div class="k">dashboard views</div></div>
+      </div>
+
+      <div class="report reveal">
+        <div class="rix">R5</div>
+        <div class="rbody">
+          <h3>HV Feedback Loop</h3>
+          <p>Introduced structured Home Visit feedback to raise HV quality, closing the loop between what was scheduled, what completed, and what the customer experienced — feeding directly back into completion and conversion.</p>
+          <div class="tags"><span class="tag">Quality program</span><span class="tag">Feedback loop</span><span class="tag">CX</span></div>
+        </div>
+        <div class="rmetric"><div class="v up">↑ quality</div><div class="k">HV experience</div></div>
+      </div>
+
+      <div class="report reveal">
+        <div class="rix">R6</div>
+        <div class="rbody">
+          <h3>RM Travel Allowance & Channel Payroll</h3>
+          <p>Built the reporting that drives compensation for the whole field channel. RM Travel Allowance is reimbursed on verified clinic visits and movement from my tracking report rather than self-reported claims, and full-channel payroll is computed against performance metrics — visits, leads and attendance — sourced directly from the reports I built.</p>
+          <div class="tags"><span class="tag">TA reconciliation</span><span class="tag">Channel payroll</span><span class="tag">Metrics-based comp</span></div>
+        </div>
+        <div class="rmetric"><div class="v">Whole</div><div class="k">field channel</div></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- LIVE TOOLS -->
+<section class="block tools" id="tools">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-tag">Live, working tools</div>
+      <h2>Click in. These are the real reports, running.</h2>
+      <p>Three of the reporting tools I built at Even, running live in your browser with anonymized sample data. No mockups — open any of them and filter, sort, and explore exactly as the teams did.</p>
+    </div>
+
+    <div class="toolgrid">
+      <a class="toolcard reveal" href="rm-cam-daily-report.html" target="_blank" rel="noopener">
+        <div class="thumb"><img src="thumb-rm-cam-daily-report.png" alt="RM and CAM daily report dashboard"></div>
+        <div class="tbody">
+          <h4>RM &amp; CAM Daily Report</h4>
+          <p>Field-ops dashboard across 8 cities and 24 team leads. KPI cards, per-agent revenue vs target, HV completion, late-punch tracking, with city/TL/achievement filters and sortable columns.</p>
+          <div class="stack-row"><span class="tag">Field ops</span><span class="tag">Revenue vs target</span><span class="tag">Attendance</span></div>
+          <span class="open">OPEN TOOL →</span>
+        </div>
+      </a>
+
+      <a class="toolcard reveal" href="inside-sales-april-report.html" target="_blank" rel="noopener">
+        <div class="thumb"><img src="thumb-inside-sales-april-report.png" alt="Inside sales April report dashboard"></div>
+        <div class="tbody">
+          <h4>Inside Sales Monthly Report</h4>
+          <p>Agent productivity and weekly revenue tracking across zones and POD leaders. Dials, talk time, Good Leads, HV completion %, and a four-week revenue sparkline per rep.</p>
+          <div class="stack-row"><span class="tag">Inside sales</span><span class="tag">Weekly revenue</span><span class="tag">HV %</span></div>
+          <span class="open">OPEN TOOL →</span>
+        </div>
+      </a>
+
+      <a class="toolcard reveal" href="daily-dials-report.html" target="_blank" rel="noopener">
+        <div class="thumb"><img src="thumb-daily-dials-report.png" alt="Daily dials hourly calling report"></div>
+        <div class="tbody">
+          <h4>Daily Dials &amp; Talk-Time Report</h4>
+          <p>Hourly calling breakdown by agent and time slot, with a paste-raw-data parser that auto-detects slots, ranks the top agent, and surfaces the peak calling window of the day.</p>
+          <div class="stack-row"><span class="tag">Hourly cadence</span><span class="tag">Talk time</span><span class="tag">Paste-to-parse</span></div>
+          <span class="open">OPEN TOOL →</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- SYSTEMS -->
+<section class="block systems" id="systems">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-tag">Tools & systems I stood up</div>
+      <h2>Operational infrastructure, built and shipped.</h2>
+      <p>Beyond reporting, I built the systems the team runs on — including a live field-tracking web app built with AI assistance, automated reporting, and the dialer that lifted churning.</p>
+    </div>
+
+    <div class="sysgrid">
+      <div class="syscard reveal">
+        <div class="ico">↗</div>
+        <h4>RM Field-Tracking App</h4>
+        <p>Designed and built a web app (with Claude) to track field reps live — current location, attendance, and full visibility into which clinics each RM visited. The same data feeds RM Travel Allowance, reimbursed on verified visits instead of self-reported claims.</p>
+        <div class="stack-row"><span class="tag">Web app</span><span class="tag">Live location</span><span class="tag">TA & attendance</span></div>
+      </div>
+      <div class="syscard reveal">
+        <div class="ico">⟳</div>
+        <h4>Ameyo Auto-Dialer Rollout</h4>
+        <p>Brought in Ameyo to scale outbound calling and improve churning — a structural lever that raised the volume and consistency of contact across the inside-sales floor.</p>
+        <div class="stack-row"><span class="tag">Ameyo</span><span class="tag">Auto-dial</span><span class="tag">Throughput</span></div>
+      </div>
+      <div class="syscard reveal alt">
+        <div class="ico">∑</div>
+        <h4>Automated Reporting & Leaderboards</h4>
+        <p>Automated recurring reports with Google Apps Script and built leaderboards, tracking systems, and dashboards — removing manual report assembly so the team spends time on decisions, not data wrangling.</p>
+        <div class="stack-row"><span class="tag">Apps Script</span><span class="tag">Leaderboards</span><span class="tag">Automation</span></div>
+      </div>
+    </div>
+
+    <div class="shots">
+      <div class="shotlbl reveal">Field-tracking app — built for Even</div>
+      <div class="shotrow">
+        <div class="shot reveal"><img src="live-tracking.png" alt="Live tracking map of field reps across India"><div class="cap"><b>Live Tracking</b>Real-time map of every active rep with recent-visit history.</div></div>
+        <div class="shot reveal"><img src="all-users.png" alt="All users directory with punch-in and visit status"><div class="cap"><b>User Directory</b>239 users with status, punch-in and visits completed.</div></div>
+        <div class="shot reveal"><img src="attendance.png" alt="Attendance view with role, city and punch data"><div class="cap"><b>Attendance</b>205 agents — present, no-punch and late, by role and city.</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CASE STUDY -->
+<section class="block case" id="case">
+  <div class="wrap">
+    <div class="panel reveal">
+      <div>
+        <div class="sec-tag">Headline impact</div>
+        <h2>From a 35% black box to 67% — and revenue that doubled.</h2>
+        <p>When we started, only <strong>35% of Home Visits completed</strong> and same-day HV outcomes were invisible. By rebuilding HV tracking with the CRM team, shipping a live status report, and running an HV feedback loop, we reached <strong>67% completion within four months.</strong></p>
+        <p>With the full SalesOps stack in place — input metrics, forecasting, field tracking, the Even Pay lead engine and the dialer — <strong>monthly revenue moved from ₹1.5 cr to ₹3 cr.</strong></p>
+      </div>
+      <div class="gauge">
+        <div class="bar before">
+          <div class="top"><span class="name">HV completion — start</span><span class="val">35%</span></div>
+          <div class="track"><div class="fill" data-w="35"></div></div>
+        </div>
+        <div class="bar after">
+          <div class="top"><span class="name">HV completion — month 4</span><span class="val">67%</span></div>
+          <div class="track"><div class="fill" data-w="67"></div></div>
+        </div>
+        <div class="bar rev">
+          <div class="top"><span class="name">Monthly revenue</span><span class="val">₹1.5cr → ₹3cr</span></div>
+          <div class="track"><div class="fill" data-w="100"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section class="block exp" id="exp">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-tag">Track record</div>
+      <h2>Experience</h2>
+    </div>
+    <div class="tl">
+      <div class="tlrow reveal">
+        <div class="yr">Oct 2025 — Present · Bengaluru</div>
+        <h4>Even Health</h4>
+        <div class="role">Sales Operations Specialist · Founding SalesOps pilot</div>
+        <p>Built the SalesOps function from scratch: input metrics, HV forecasting, closure funnels, Looker dashboards, RM field tracking, the Even Pay lead network, automated reporting, plus RM Travel Allowance and full-channel payroll driven by my reports. Drove HV completion 35%→67% and supported revenue doubling from ₹1.5cr to ₹3cr monthly.</p>
+      </div>
+      <div class="tlrow reveal muted">
+        <div class="yr">Sep 2023 — Aug 2025 · Bengaluru</div>
+        <h4>Simplilearn</h4>
+        <div class="role">Sales & Operations Associate</div>
+        <p>Dual role across customer engagement and operational efficiency — managed and tracked leads while building detailed Excel and Tableau reports that drove strategic decisions and optimized performance across the org.</p>
+      </div>
+      <div class="tlrow reveal muted">
+        <div class="yr">Sep 2021 — Jan 2023 · Bengaluru</div>
+        <h4>24[7].ai</h4>
+        <div class="role">Digital Interactive Agent</div>
+        <p>Delivered customer service and support over chat, resolving inquiries with strong written communication. Grounded my later operations work in a real understanding of on-the-floor sales and support.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section class="block skills">
+  <div class="wrap">
+    <div class="sec-head reveal">
+      <div class="sec-tag">Toolkit</div>
+      <h2>What I work with</h2>
+    </div>
+    <div class="grid">
+      <div class="skcol reveal">
+        <h5>Analytics & BI</h5>
+        <ul><li>Looker Studio</li><li>Tableau</li><li>Power BI (PL-300)</li><li>Funnel & cohort analysis</li></ul>
+      </div>
+      <div class="skcol reveal">
+        <h5>Data & Automation</h5>
+        <ul><li>Google Sheets (advanced)</li><li>Apps Script</li><li>COUNTIFS / SUMIFS / INDEX-MATCH</li><li>Report automation</li></ul>
+      </div>
+      <div class="skcol reveal">
+        <h5>RevOps & CRM</h5>
+        <ul><li>CRM hygiene & modeling</li><li>Pipeline & forecasting</li><li>Lead routing & assignment</li><li>Ameyo auto-dialer</li></ul>
+      </div>
+      <div class="skcol reveal">
+        <h5>Process & Build</h5>
+        <ul><li>GTM process design</li><li>AI-assisted app building</li><li>Field-ops tracking</li><li>TA & channel payroll</li></ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="wrap">
+    <div class="reveal">
+      <div class="sec-tag">Let's talk</div>
+      <h2>Looking for a <em>Revenue Operations</em> role where systems decide the number.</h2>
+      <p>If you need someone who builds the reporting, the forecasting and the tooling that move revenue — not just maintains them — let's connect.</p>
+      <div class="ctas">
+        <a class="btn primary" href="mailto:nizamuddinps2@gmail.com?subject=Revenue%20Operations%20opportunity&body=Hi%20Nizamuddin%2C%0A%0AI%20came%20across%20your%20portfolio%20and%20would%20like%20to%20connect.%0A%0A">Email me →</a>
+        <a class="btn ghost" href="sms:+919632437944">Text me</a>
+        <a class="btn ghost" href="https://www.linkedin.com/in/nizamuddinps-b38191311" target="_blank" rel="noopener">LinkedIn</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>© 2026 Nizamuddin PS · Revenue Operations · Bengaluru, India</footer>
+
+<script>
+  // reveal on scroll
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+  },{threshold:.12});
+  document.querySelectorAll('.reveal').forEach((el,i)=>{
+    el.style.transitionDelay=(Math.min(i%4,3)*60)+'ms';
+    io.observe(el);
+  });
+  // animate gauges
+  const gobs = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      if(e.isIntersecting){
+        e.target.querySelectorAll('.fill').forEach(f=>{ f.style.width=f.dataset.w+'%'; });
+        gobs.unobserve(e.target);
+      }
+    });
+  },{threshold:.3});
+  document.querySelectorAll('.gauge').forEach(g=>gobs.observe(g));
+</script>
+</body>
+</html>
