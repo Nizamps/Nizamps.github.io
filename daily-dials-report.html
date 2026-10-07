@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Even — Daily Dials Report</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #0f172a; }
+
+/* NAV */
+.nav { height: 52px; background: #2563eb; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; flex-shrink: 0; box-shadow: 0 2px 12px rgba(37,99,235,.5); }
+.logo { font-size: 28px; font-weight: 900; color: #fff; letter-spacing: -2px; }
+.nav-tabs { display: flex; gap: 3px; }
+.ntab { font-size: 12px; font-weight: 700; color: rgba(255,255,255,.75); padding: 5px 16px; border-radius: 6px; cursor: pointer; border: none; background: rgba(255,255,255,.12); font-family: inherit; transition: all .15s; }
+.ntab:hover { background: rgba(255,255,255,.22); color: #fff; }
+.ntab.on { background: #fff; color: #2563eb; }
+.nav-right { font-size: 11px; color: rgba(255,255,255,.85); font-weight: 600; }
+.nav-brand { display: flex; align-items: center; gap: 10px; }
+.brand-title { font-size: 15px; font-weight: 900; color: #fff; letter-spacing: .02em; border-left: 2px solid rgba(255,255,255,.35); padding-left: 12px; }
+
+/* LAYOUT */
+.wrap { display: flex; flex-direction: column; height: calc(100vh - 52px); overflow: hidden; }
+.pg { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+.pg.on { display: flex; }
+
+/* ZONE BAR */
+.zbar { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 7px 16px; display: flex; align-items: center; gap: 8px; flex-shrink: 0; flex-wrap: wrap; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+.zlabel { font-size: 10px; font-weight: 900; color: #64748b; text-transform: uppercase; letter-spacing: .07em; }
+.zpills { display: flex; gap: 3px; }
+.zpill { font-size: 11px; font-weight: 700; padding: 3px 13px; border-radius: 20px; cursor: pointer; border: 1.5px solid #e2e8f0; background: #f8fafc; color: #64748b; font-family: inherit; transition: all .12s; }
+.zpill:hover { border-color: #2563eb; color: #2563eb; }
+.zpill.zs { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+.zpill.zn { background: #f0fdf4; color: #16a34a; border-color: #bbf7d0; }
+.zpill.zw { background: #fffbeb; color: #d97706; border-color: #fde68a; }
+.zpill.zf { background: #f1f5f9; color: #334155; border-color: #cbd5e1; }
+.zpill.ze { background: #fdf2f8; color: #9d174d; border-color: #fbcfe8; }
+.legend { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+.leg { display: flex; align-items: center; gap: 4px; font-size: 10px; color: #0f172a; font-weight: 800; }
+.ldot { width: 12px; height: 12px; border-radius: 2px; }
+/* Darker legend dots */
+.lg { background: #16a34a; border: 1px solid #15803d; }
+.lp { background: #d97706; border: 1px solid #92400e; }
+.lr { background: #b91c1c; border: 1px solid #991b1b; }
+
+/* METRICS */
+.mstrip { display: flex; gap: 6px; padding: 8px 16px 0; flex-shrink: 0; }
+.mc { background: #fff; border: 1px solid #e2e8f0; border-radius: 9px; padding: 9px 14px; flex: 1; border-left: 3px solid #e2e8f0; min-width: 0; }
+.mc.cb { border-left-color: #2563eb; }
+.mc.cg { border-left-color: #16a34a; }
+.mc.ca { border-left-color: #d97706; }
+.mc.ct { border-left-color: #0d9488; }
+.ml { font-size: 8.5px; color: #64748b; text-transform: uppercase; letter-spacing: .08em; font-weight: 800; margin-bottom: 2px; }
+.mv { font-size: 20px; font-weight: 900; color: #0f172a; letter-spacing: -.5px; line-height: 1.1; }
+.mv.sm { font-size: 13px; font-weight: 800; }
+.ms { font-size: 9px; color: #64748b; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* DASH BODY */
+.dbody { flex: 1; overflow: hidden; display: flex; flex-direction: column; padding: 7px 0 10px; min-height: 0; }
+.zsec { display: none; flex: 1; flex-direction: column; min-height: 0; }
+.zsec.on { display: flex; }
+
+/* TABLE CARD */
+.tcard { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; overflow: hidden; flex: 1; display: flex; flex-direction: column; min-height: 0; box-shadow: 0 1px 6px rgba(0,0,0,.05); }
+.tcard-hdr { display: flex; align-items: center; justify-content: space-between; padding: 7px 12px; border-bottom: 1px solid #e2e8f0; background: #f8fafc; flex-shrink: 0; }
+.tcard-ttl { font-size: 10px; font-weight: 900; color: #0f172a; text-transform: uppercase; letter-spacing: .05em; }
+.tbadge { font-size: 10px; font-weight: 700; padding: 2px 10px; border-radius: 20px; }
+.bgs { background: #eff6ff; color: #2563eb; }
+.bgn { background: #f0fdf4; color: #16a34a; }
+.bgw { background: #fffbeb; color: #d97706; }
+.bgf { background: #f1f5f9; color: #334155; }
+.bge { background: #fdf2f8; color: #9d174d; }
+
+/* TABLE WRAPPER — centered, no horizontal scroll */
+.tbl-wrap { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+.tbl-outer { flex: 1; overflow-x: hidden; overflow-y: auto; width: 100%; padding: 0 16px; }
+.tbl-outer table { width: 100%; max-width: 100%; table-layout: fixed; border-collapse: collapse; margin: 0 auto; }
+
+/* TABLE */
+table { border-collapse: collapse; }
+table thead { position: sticky; top: 0; z-index: 30; }
+table tfoot { position: sticky; bottom: 0; z-index: 30; }
+
+/* HEADER ROW 1 — group labels */
+.h1 th {
+  background: #2563eb; color: #fff;
+  padding: 7px 3px; font-size: 12px; font-weight: 900;
+  text-align: center; text-transform: uppercase;
+  letter-spacing: .04em; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.h1 th.hname { background: #1d4ed8; text-align: left; padding-left: 10px; }
+.h1 th.hs1 { background: #1e40af; }
+.h1 th.hs2 { background: #0e4d7a; }
+.h1 th.hs3 { background: #065f46; }
+.h1 th.hs4 { background: #7f1d1d; }
+.h1 th.hgt { background: #14532d; }
+
+/* HEADER ROW 2 — sub labels */
+.h2 th {
+  padding: 5px 3px; font-size: 10.5px; font-weight: 800;
+  text-align: center; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
+.h2 th.hname { background: #1e3a8a; color: #bfdbfe; text-align: left; padding-left: 10px; }
+.h2 th.hs1 { background: #1e40af; color: #bfdbfe; }
+.h2 th.hs2 { background: #0c4a6e; color: #bae6fd; }
+.h2 th.hs3 { background: #064e3b; color: #a7f3d0; }
+.h2 th.hs4 { background: #991b1b; color: #fecaca; }
+.h2 th.hgt { background: #166534; color: #bbf7d0; }
+.sep1 { border-left: 2px solid rgba(255,255,255,.3) !important; }
+
+/* TFOOT — Grand Total */
+tfoot tr td {
+  background: #14532d !important; color: #ffffff !important;
+  font-weight: 900 !important; font-size: 15px !important;
+  padding: 8px 3px !important; border-top: 3px solid #22c55e !important;
+  text-align: center; white-space: nowrap;
+  font-family: 'Courier New', monospace; overflow: hidden;
+}
+tfoot tr td.nm {
+  text-align: left !important; font-family: inherit !important;
+  font-size: 15px !important; background: #166534 !important;
+  color: #ffffff !important; font-weight: 900 !important;
+  position: sticky; left: 0; z-index: 25;
+  border-right: 3px solid #22c55e !important;
+  padding: 8px 8px 8px 10px !important;
+}
+tfoot tr td.bsep1 { border-left: 2px solid rgba(255,255,255,.35) !important; }
+tfoot tr td.bsep2 { border-left: 2px solid rgba(255,255,255,.25) !important; }
+tfoot tr td.bsep3 { border-left: 2px solid rgba(255,255,255,.2) !important; }
+tfoot tr td.bsep4 { border-left: 2px solid rgba(255,255,255,.15) !important; }
+tfoot tr td.bsepg { border-left: 3px solid #86efac !important; }
+
+/* BODY CELLS — 15px */
+td {
+  padding: 0 3px; height: 30px; text-align: center;
+  border-top: 1px solid #e8edf3;
+  font-size: 15px; font-weight: 700; color: #0f172a;
+  font-family: 'Courier New', monospace;
+  white-space: nowrap; vertical-align: middle;
+  transition: background .15s; overflow: hidden;
+}
+td.nm {
+  text-align: left; font-family: inherit; font-size: 14px;
+  font-weight: 700; color: #0f172a; background: #fff;
+  position: sticky; left: 0; z-index: 10;
+  border-right: 2px solid #e2e8f0;
+  padding: 0 8px 0 10px; overflow: hidden; text-overflow: ellipsis;
+}
+td.nl { color: #94a3b8 !important; font-weight: 400 !important; }
+/* NO alternating stripes — CF colors handle row identity */
+td.bsep1 { border-left: 2px solid #93c5fd; }
+td.bsep2 { border-left: 2px solid #7dd3fc; }
+td.bsep3 { border-left: 2px solid #6ee7b7; }
+td.bsep4 { border-left: 2px solid #fca5a5; }
+td.bsepg { border-left: 3px solid #16a34a; }
+
+/* HOVER POPUP EFFECT */
+tbody tr { position: relative; transition: all .15s; cursor: pointer; }
+tbody tr:hover { z-index: 50; }
+tbody tr:hover td {
+  background: #1e40af !important;
+  color: #fff !important;
+  transform: scaleY(1.15);
+  box-shadow: 0 4px 20px rgba(30,64,175,.35);
+  border-top: 1px solid #3b82f6 !important;
+  border-bottom: 1px solid #3b82f6 !important;
+}
+tbody tr:hover td.nm {
+  background: #1d4ed8 !important;
+  color: #fff !important;
+  font-weight: 900 !important;
+  border-right: 2px solid #60a5fa !important;
+}
+tbody tr:hover td.nl { color: #93c5fd !important; }
+
+/* ROW CF — SOLID COLORS, NO ALTERNATING */
+/* Green = high performer */
+tr.cfg td { background: #86efac !important; color: #052e16 !important; font-weight: 800 !important; }
+tr.cfg td.nm { background: #4ade80 !important; color: #052e16 !important; font-weight: 900 !important; border-right: 2px solid #16a34a !important; }
+tr.cfg td.nl { color: #15803d !important; font-weight: 600 !important; }
+
+/* Orange/Amber = mid performer (NOT purple) */
+tr.cfp td { background: #fde68a !important; color: #451a03 !important; font-weight: 800 !important; }
+tr.cfp td.nm { background: #fbbf24 !important; color: #451a03 !important; font-weight: 900 !important; border-right: 2px solid #d97706 !important; }
+tr.cfp td.nl { color: #92400e !important; font-weight: 600 !important; }
+
+/* Red = low performer */
+tr.cfr td { background: #fca5a5 !important; color: #450a0a !important; font-weight: 800 !important; }
+tr.cfr td.nm { background: #f87171 !important; color: #450a0a !important; font-weight: 900 !important; border-right: 2px solid #dc2626 !important; }
+tr.cfr td.nl { color: #b91c1c !important; font-weight: 600 !important; }
+
+/* PASTE PAGE */
+.ppg { padding: 20px 24px; overflow-y: auto; flex: 1; }
+.ppg h2 { font-size: 18px; font-weight: 900; color: #2563eb; margin-bottom: 4px; }
+.ppg .sub { font-size: 12px; color: #64748b; margin-bottom: 16px; line-height: 1.7; font-weight: 500; }
+.steps { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 16px; }
+.step { background: #fff; border: 1px solid #e2e8f0; border-radius: 10px; padding: 12px 14px; }
+.snum { width: 22px; height: 22px; border-radius: 50%; background: #2563eb; color: #fff; font-size: 10px; font-weight: 900; display: flex; align-items: center; justify-content: center; margin-bottom: 7px; }
+.stitle { font-size: 11px; font-weight: 900; margin-bottom: 3px; }
+.sdesc { font-size: 10.5px; color: #64748b; line-height: 1.5; font-weight: 500; }
+.pabox { background: #fff; border: 1.5px solid #e2e8f0; border-radius: 10px; overflow: hidden; margin-bottom: 10px; }
+.pahdr { padding: 9px 13px; background: #2563eb; display: flex; justify-content: space-between; align-items: center; }
+.palbl { font-size: 11px; font-weight: 900; color: #fff; }
+.pahint { font-size: 10px; color: rgba(255,255,255,.8); font-weight: 600; }
+textarea { width: 100%; height: 200px; padding: 12px; font-family: 'Courier New', monospace; font-size: 11px; color: #334155; border: none; outline: none; resize: vertical; line-height: 1.6; display: block; font-weight: 500; }
+textarea::placeholder { color: #94a3b8; }
+.btns { display: flex; gap: 8px; align-items: center; }
+.pbtn { display: inline-flex; align-items: center; gap: 7px; background: #2563eb; color: #fff; font-family: inherit; font-size: 12px; font-weight: 800; padding: 9px 20px; border-radius: 8px; border: none; cursor: pointer; }
+.pbtn:hover { background: #1d4ed8; }
+.cbtn { background: #fff; color: #64748b; font-family: inherit; font-size: 12px; font-weight: 700; padding: 9px 16px; border-radius: 8px; border: 1px solid #e2e8f0; cursor: pointer; }
+.cbtn:hover { background: #f1f5f9; }
+.pstat { margin-top: 10px; font-size: 11px; border-radius: 8px; padding: 10px 14px; display: none; font-weight: 700; }
+.pstat.ok { display: block; background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+.pstat.err { display: block; background: #fef2f2; color: #dc2626; border: 1px solid #fca5a5; }
+.zchips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
+.zchip { font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 20px; }
+
+@media (min-width: 2000px) {
+  td { font-size: 17px; height: 34px; }
+  td.nm { font-size: 16px; }
+  .h1 th { font-size: 13px; padding: 8px 4px; }
+  .h2 th { font-size: 12px; padding: 6px 4px; }
+  tfoot tr td { font-size: 17px !important; }
+  tfoot tr td.nm { font-size: 17px !important; }
+  .mv { font-size: 22px; } .mv.sm { font-size: 15px; }
+}
+@media (min-width: 2600px) {
+  td { font-size: 20px; height: 38px; }
+  td.nm { font-size: 19px; }
+  .h1 th { font-size: 15px; padding: 9px 5px; }
+  .h2 th { font-size: 14px; padding: 7px 5px; }
+  tfoot tr td { font-size: 20px !important; }
+  tfoot tr td.nm { font-size: 20px !important; }
+  .mv { font-size: 28px; } .mv.sm { font-size: 17px; }
+  .mc { padding: 12px 18px; } .mlbl { font-size: 11px; }
+}
+</style>
+</head>
+<body>
+
+<div class="nav">
+  <div class="nav-brand">
+    <div class="logo">even</div>
+    <span class="brand-title">Runo Calling Report</span>
+  </div>
+  <div class="nav-tabs">
+    <button class="ntab on" id="tab-d" onclick="showPg('d',this)">Dashboard</button>
+    <button class="ntab" id="tab-p" onclick="showPg('p',this)">⊕ Paste Data</button>
+  </div>
+  <span class="nav-right" id="nav-date">Apr 14, 2026</span>
+</div>
+
+<div class="wrap">
+  <div class="pg on" id="pg-d">
+    <div class="zbar">
+      <span class="zlabel">Zone:</span>
+      <div class="zpills" id="zpills"></div>
+      <div class="legend">
+        <span class="leg"><span class="ldot lg"></span>High</span>
+        <span class="leg"><span class="ldot lp"></span>Mid</span>
+        <span class="leg"><span class="ldot lr"></span>Low</span>
+      </div>
+    </div>
+    <div class="mstrip" id="mstrip"></div>
+    <div class="dbody">
+      <div id="dcontent" style="display:flex;flex-direction:column;flex:1;min-height:0;"></div>
+    </div>
+  </div>
+
+  <div class="pg" id="pg-p">
+    <div class="ppg">
+      <h2>Paste Raw Sheet Data</h2>
+      <p class="sub">Copy everything from your Google Sheet (<strong>Ctrl+A → Ctrl+C</strong>) and paste below. Only intervals that have data will show — Grand Total pulls from the sheet's own total columns (col 19–20).</p>
+      <div class="steps">
+        <div class="step"><div class="snum">1</div><div class="stitle">Open your sheet</div><div class="sdesc">Open the daily dials Google Sheet</div></div>
+        <div class="step"><div class="snum">2</div><div class="stitle">Select all &amp; copy</div><div class="sdesc">Ctrl+A to select all, then Ctrl+C to copy</div></div>
+        <div class="step"><div class="snum">3</div><div class="stitle">Paste &amp; build</div><div class="sdesc">Paste here and click Parse &amp; Build Dashboard</div></div>
+      </div>
+      <div class="pabox">
+        <div class="pahdr"><span class="palbl">Raw sheet data</span><span class="pahint">Tab-separated · Google Sheets or Excel paste</span></div>
+        <textarea id="pastebox" placeholder="Paste your copied sheet data here...&#10;&#10;The parser detects which time slots have actual data.&#10;Grand Total is read directly from the sheet's grand total column."></textarea>
+      </div>
+      <div class="btns">
+        <button class="pbtn" onclick="doParse()">▶ Parse &amp; Build Dashboard</button>
+        <button class="cbtn" onclick="document.getElementById('pastebox').value='';hideStat()">Clear</button>
+      </div>
+      <div class="pstat" id="pstat"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// CF thresholds are now in rowCF() based on active group count
+
+// Raw slot indices per group
+var GSLOTS = {s1:[0], s2:[1,2], s3:[3,4], s4:[5,6,7,8]};
+// Group display labels
+var GLAB = {s1:'10–12 AM', s2:'12–2 PM', s3:'3–5 PM', s4:'5–7:45 PM'};
+// Sub-labels for dial columns (one per slot in group)
+var GDLAB = {s1:['Dials'], s2:['12–1','1–2'], s3:['2–4','4–5'], s4:['5–6','6–7','7–8','8–9:45']};
+// All slot labels for peak slot display
+var SLAB = ['10–12 AM','12–1 PM','1–2 PM','2–4 PM','4–5 PM','5–6 PM','6–7 PM','7–8 PM','8–9:45 PM'];
+
+var ZLAB   = {south:'South',north:'North',west:'West',final:'Final (All Zones)',evenpay:'Even Pay'};
+var ZBADGE = {south:'bgs',north:'bgn',west:'bgw',final:'bgf',evenpay:'bge'};
+var ZPILCL = {south:'zs',north:'zn',west:'zw',final:'zf',evenpay:'ze'};
+var ORDER  = ['final','south','north','west','evenpay'];
+var DATA   = {};
+
+function durMins(s) {
+  if (!s || s === '—' || s === '') return null;
+  var p = s.split(':').map(Number);
+  if (p.length === 3) return p[0]*60 + p[1] + p[2]/60;
+  if (p.length === 2) return p[0]*60 + p[1];
+  return null;
+}
+
+// CF thresholds based on which GROUPS are active (not individual slots)
+// activeGroups: array like ['s1'] or ['s1','s2'] or ['s1','s2','s3'] or all 4
+// row[20] = grand total duration string for the agent
+function rowCF(row, activeSlots, activeGroups) {
+  // Use grand total duration (row index 20)
+  var totalDur = row[20];
+  if (!totalDur || totalDur === '—' || totalDur === null) return '';
+  var m = durMins(totalDur);
+  if (m === null) return '';
+
+  var grpCount = activeGroups ? activeGroups.length : 1;
+  var high, mid;
+
+  if (grpCount >= 4) {
+    // 4 groups: 10-12 + 12-2 + 3-5 + 5-7:45 → Green ≥90min, Yellow ≥60min
+    high = 90; mid = 60;
+  } else if (grpCount === 3) {
+    // 3 groups: 10-12 + 12-2 + 3-5 → Green ≥50min, Yellow ≥45min
+    high = 50; mid = 45;
+  } else if (grpCount === 2) {
+    // 2 groups: 10-12 + 12-2 → Green ≥40min, Yellow ≥25min
+    high = 40; mid = 25;
+  } else {
+    // 1 group: 10-12 only → Green ≥20min, Yellow ≥15min
+    high = 20; mid = 15;
+  }
+
+  if (m >= high) return 'cfg';
+  if (m >= mid)  return 'cfp';
+  return 'cfr';
+}
+
+// Detect which INDIVIDUAL slots (0-8) have any data at all
+// A slot "has data" if any agent has a non-null dial count for it, OR slot total > 0
+function detectActiveSlots(agents, st) {
+  var active = [], s, ai, v;
+  for (s=0;s<9;s++) {
+    var hasData = false;
+    // Check slot totals first
+    if (st[s*2] !== null && st[s*2] !== undefined && st[s*2] > 0) hasData = true;
+    // Check any agent row
+    if (!hasData) {
+      for (ai=0;ai<agents.length;ai++) {
+        v = agents[ai][1 + s*2];
+        if (v !== null && v !== undefined && v > 0) { hasData = true; break; }
+      }
+    }
+    if (hasData) active.push(s);
+  }
+  return active;
+}
+
+// Convert active slot list to active groups (only groups where at least 1 slot is active)
+function activeSlotGroups(activeSlots) {
+  var groups = ['s1','s2','s3','s4'];
+  var result = [], gi, g, gslots, si, found;
+  for (gi=0;gi<groups.length;gi++) {
+    g = groups[gi]; gslots = GSLOTS[g]; found = false;
+    for (si=0;si<gslots.length;si++) {
+      if (activeSlots.indexOf(gslots[si]) >= 0) { found = true; break; }
+    }
+    if (found) result.push(g);
+  }
+  return result;
+}
+
+function showPg(id, btn) {
+  document.querySelectorAll('.pg').forEach(function(el){ el.classList.remove('on'); });
+  document.querySelectorAll('.ntab').forEach(function(el){ el.classList.remove('on'); });
+  document.getElementById('pg-'+id).classList.add('on');
+  if (btn) btn.classList.add('on');
+}
+
+function switchZone(z) {
+  document.querySelectorAll('.zsec').forEach(function(el){ el.classList.remove('on'); });
+  var el = document.getElementById('zsec-'+z);
+  if (el) el.classList.add('on');
+  document.querySelectorAll('.zpill').forEach(function(p){
+    p.className = 'zpill' + (p.dataset.zone === z ? ' '+ZPILCL[z] : '');
+  });
+  renderMetrics(z);
+}
+
+function topAgent(agents) {
+  var best=null, max=0, i, d;
+  for (i=0;i<agents.length;i++) {
+    // Total dials is at index 19 of the agent row array
+    d = agents[i][19];
+    if (d !== null && d !== undefined && d > max) {
+      max = d;
+      best = {name: agents[i][0], dials: d, dur: agents[i][20]};
+    }
+  }
+  return best;
+}
+
+function peakSlot(st) {
+  var pi=0, pv=0, s, v;
+  for (s=0;s<9;s++) { v = st[s*2]||0; if (v>pv) { pv=v; pi=s; } }
+  return {idx:pi, val:pv};
+}
+
+function nf(n) { return (n||0).toLocaleString(); }
+
+function renderMetrics(z) {
+  var zd = DATA[z];
+  if (!zd) return;
+  // grandTotal[0] = total dials, grandTotal[1] = total duration string
+  var gt = zd.grandTotal || [0,'—'];
+  var totalDials = gt[0] || 0;
+  var totalDur   = (gt[1] && gt[1] !== '—') ? gt[1] : '—';
+  var ta = topAgent(zd.agents||[]);
+  var ps = peakSlot(zd.slotTotals||[]);
+  document.getElementById('mstrip').innerHTML =
+    '<div class="mc cb"><div class="ml">Total Calls</div><div class="mv">'+nf(totalDials)+'</div><div class="ms">'+(ZLAB[z]||z)+'</div></div>'+
+    '<div class="mc cg"><div class="ml">Total Talk Time</div><div class="mv">'+totalDur+'</div><div class="ms">Hours (combined)</div></div>'+
+    '<div class="mc ca"><div class="ml">Top Agent</div><div class="mv sm">'+(ta?ta.name:'—')+'</div><div class="ms">'+(ta?ta.dials+' dials · '+(ta.dur||'—'):'—')+'</div></div>'+
+    '<div class="mc ct"><div class="ml">Peak Slot</div><div class="mv sm">'+SLAB[ps.idx]+'</div><div class="ms">'+ps.val+' dials</div></div>';
+}
+
+var SEP_CLS = {s1:'bsep1', s2:'bsep2', s3:'bsep3', s4:'bsep4'};
+
+function buildAll(zones) {
+  DATA = zones;
+  var avail = ORDER.filter(function(z){ return zones[z]&&(zones[z].agents||[]).length>0; });
+  if (!avail.length) return;
+  document.getElementById('zpills').innerHTML = avail.map(function(z){
+    return '<button class="zpill" data-zone="'+z+'" onclick="switchZone(\''+z+'\')">'+(ZLAB[z]||z)+'</button>';
+  }).join('');
+  document.getElementById('dcontent').innerHTML = avail.map(function(z){
+    return buildZone(z, zones[z]);
+  }).join('');
+  switchZone(avail[0]);
+}
+
+function buildZone(z, zd) {
+  var agents = zd.agents || [];
+  var st     = zd.slotTotals || [];
+  var gt     = zd.grandTotal || [null,'—'];
+  var lab    = ZLAB[z] || z;
+  var badge  = ZBADGE[z] || 'bgf';
+
+  // Detect which individual slots have data
+  var activeSlots = detectActiveSlots(agents, st);
+  // Group those slots into display groups
+  var activeGroups = activeSlotGroups(activeSlots);
+  if (!activeGroups.length) activeGroups = ['s1'];
+
+  // Name column - let CSS min-width handle it, no inline style needed
+  var nmW = 180; // fallback, CSS overrides
+
+  // ── HEADER ROW 1 ──
+  var h1 = '<tr class="h1"><th class="hname sep1" rowspan="2">AGENT</th>';
+  var h2 = '<tr class="h2">'; // name col has rowspan=2, so NO th here
+
+  var gi, g, gslots, si, slot, isFirst, sc, dlabs, ssi;
+  for (gi=0;gi<activeGroups.length;gi++) {
+    g = activeGroups[gi];
+    gslots = GSLOTS[g];
+    dlabs  = GDLAB[g];
+    // Only count slots from this group that are active
+    var activeSlotsInGroup = [];
+    for (ssi=0;ssi<gslots.length;ssi++) {
+      if (activeSlots.indexOf(gslots[ssi]) >= 0) activeSlotsInGroup.push(gslots[ssi]);
+    }
+    var colspan = activeSlotsInGroup.length * 2;
+    h1 += '<th class="h'+g+' sep1" colspan="'+colspan+'">'+GLAB[g]+'</th>';
+
+    for (ssi=0;ssi<activeSlotsInGroup.length;ssi++) {
+      slot = activeSlotsInGroup[ssi];
+      isFirst = (ssi === 0);
+      sc = isFirst ? ' sep1' : '';
+      // Find sub-label: position of this slot within the group
+      var posInGroup = gslots.indexOf(slot);
+      var dlab = (dlabs[posInGroup] !== undefined) ? dlabs[posInGroup] : SLAB[slot];
+      h2 += '<th class="h'+g+sc+'">'+dlab+'</th>';
+      h2 += '<th class="h'+g+'">Dur</th>';
+    }
+  }
+  // Grand total header - always show
+  h1 += '<th class="hgt sep1" colspan="2">GRAND TOTAL</th>';
+  h2 += '<th class="hgt sep1">Dials</th><th class="hgt">Dur</th>';
+  h1 += '</tr>'; h2 += '</tr>';
+
+  // ── TBODY ──
+  var tbody = '';
+  for (ai=0;ai<agents.length;ai++) {
+    var row = agents[ai];
+    var rcf = rowCF(row, activeSlots, activeGroups);
+    tbody += '<tr class="'+rcf+'">';
+    tbody += '<td class="nm" title="'+row[0]+'">'+row[0]+'</td>';
+
+    for (gi=0;gi<activeGroups.length;gi++) {
+      g = activeGroups[gi];
+      gslots = GSLOTS[g];
+      var activeSlotsInGroup2 = [];
+      for (ssi=0;ssi<gslots.length;ssi++) {
+        if (activeSlots.indexOf(gslots[ssi]) >= 0) activeSlotsInGroup2.push(gslots[ssi]);
+      }
+      for (ssi=0;ssi<activeSlotsInGroup2.length;ssi++) {
+        slot = activeSlotsInGroup2[ssi];
+        isFirst = (ssi === 0);
+        sc = isFirst ? ' '+SEP_CLS[g] : '';
+        // row[1 + slot*2] = dials for slot, row[2 + slot*2] = duration for slot
+        var dials = row[1 + slot*2];
+        var dur   = row[2 + slot*2];
+        if (dials===null||dials===undefined) tbody += '<td class="nl'+sc+'">—</td>';
+        else tbody += '<td class="'+sc.trim()+'">'+dials+'</td>';
+        if (dur===null||dur===undefined) tbody += '<td class="nl">—</td>';
+        else tbody += '<td>'+dur+'</td>';
+      }
+    }
+
+    // Grand total - always read from row[19] and row[20]
+    var rtd  = row[19];
+    var rtdu = row[20];
+    if (rtd!==null&&rtd!==undefined) tbody += '<td class="bsepg">'+rtd+'</td>';
+    else tbody += '<td class="bsepg nl">—</td>';
+    if (rtdu!==null&&rtdu!==undefined) tbody += '<td>'+rtdu+'</td>';
+    else tbody += '<td class="nl">—</td>';
+
+    tbody += '</tr>';
+  }
+
+  // ── TFOOT (Grand Total - sticky at bottom) ──
+  var tfoot = '<tr>';
+  tfoot += '<td class="nm">Grand Total</td>';
+
+  for (gi=0;gi<activeGroups.length;gi++) {
+    g = activeGroups[gi];
+    gslots = GSLOTS[g];
+    var activeSlotsInGroup3 = [];
+    for (ssi=0;ssi<gslots.length;ssi++) {
+      if (activeSlots.indexOf(gslots[ssi]) >= 0) activeSlotsInGroup3.push(gslots[ssi]);
+    }
+    for (ssi=0;ssi<activeSlotsInGroup3.length;ssi++) {
+      slot = activeSlotsInGroup3[ssi];
+      isFirst = (ssi===0);
+      var sc3 = isFirst ? ' bsep1' : '';
+      var sv  = st[slot*2];
+      var sdur= st[slot*2+1];
+      tfoot += '<td class="'+sc3.trim()+'">'+(sv!==null&&sv!==undefined?sv:'—')+'</td>';
+      tfoot += '<td>'+(sdur!==null&&sdur!==undefined?sdur:'—')+'</td>';
+    }
+  }
+
+  // Grand total cells - from gt[0] and gt[1]
+  tfoot += '<td class="bsepg">'+(gt[0]!==null&&gt[0]!==undefined?gt[0]:'—')+'</td>';
+  tfoot += '<td>'+(gt[1]&&gt[1]!=='—'?gt[1]:'—')+'</td>';
+  tfoot += '</tr>';
+
+  return '<div class="zsec" id="zsec-'+z+'" style="margin-top:7px;">'+
+    '<div class="tcard">'+
+      '<div class="tcard-hdr">'+
+        '<span class="tcard-ttl">'+lab+' — Agent Hourly Breakdown</span>'+
+        '<span class="tbadge '+badge+'">'+agents.length+' agents · '+nf(gt[0])+' dials · '+(gt[1]||'—')+'</span>'+
+      '</div>'+
+      '<div class="tbl-wrap">'+
+        '<div class="tbl-outer">'+
+          '<table>'+
+            '<thead>'+h1+h2+'</thead>'+
+            '<tbody>'+tbody+'</tbody>'+
+            '<tfoot>'+tfoot+'</tfoot>'+
+          '</table>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+}
+
+// ── PARSER ──
+function detectZone(s) {
+  s = s.toUpperCase().replace(/\s/g,'');
+  if (s.indexOf('EVENPAY')>=0||(s.indexOf('EVEN')>=0&&s.indexOf('PAY')>=0)) return 'evenpay';
+  if (s.indexOf('FINAL')>=0) return 'final';
+  if (s.indexOf('SOUTH')>=0) return 'south';
+  if (s.indexOf('NORTH')>=0) return 'north';
+  if (s.indexOf('WEST')>=0) return 'west';
+  return null;
+}
+
+// Map a time range string to raw slot index 0-8
+// Slot 0=10-12AM, 1=12:01-1PM, 2=1-2PM, 3=2-4PM, 4=4-5PM, 5=5-6PM, 6=6-7PM, 7=7-8PM, 8=8-9:45PM
+function timeToSlot(s) {
+  var u = s.replace(/[\s]/g,"").toUpperCase();
+  if (u.match(/10.*12/)) return 0;
+  if (u.match(/12[^P]*PM.*1[^2]/)||u.match(/12:0?1.*13/)||u.match(/13[^:]/)) return 1;
+  if (u.match(/13.*14/)) return 2;
+  if (u.match(/14.*16/)) return 3;
+  if (u.match(/16.*17/)) return 4;
+  if (u.match(/17.*18/)) return 5;
+  if (u.match(/18.*19[^:4]/)||u.match(/18.*19PM/)) return 6;
+  if (u.match(/19.*19:?45/)) return 7;
+  if (u.match(/19:45/)) return 8;
+  if (u.match(/5.*7:?45PM/)||u.match(/5.*745/)) return 8;
+  return -1;
+}
+
+function parseTSV(raw) {
+  var lines = raw.replace(/\r/g,'').split('\n').map(function(l){ return l.split('\t'); });
+  var zones = {}, cur = null, inData = false;
+  // Per-zone: track which column indices map to which slot
+  var curSlotMap = []; // array of {col: colIndex, slot: slotIndex, type: 'dials'|'dur'}
+  var curGTDialsCol = -1, curGTDurCol = -1;
+
+  function cleanVal(v) { v=(v||'').trim(); return (v===''||v==='#N/A')?null:v; }
+  function cleanInt(v) { v=cleanVal(v); return v?parseInt(v):null; }
+  function cleanDur(v) { v=cleanVal(v); return v; }
+
+  function emptySlotArray() { var a=[]; for(var k=0;k<18;k++) a.push(null); return a; }
+
+  for (var i=0;i<lines.length;i++) {
+    var row = lines[i];
+    var f = (row[0]||'').trim();
+
+    // ── DIALS SHEET header row: detect zone + read time slot labels ──
+    if (f==='DIALS SHEET') {
+      var z = detectZone(row[1]||'');
+      if (z) {
+        cur = z;
+        zones[z] = {agents:[], slotTotals:emptySlotArray(), grandTotal:[null,'—']};
+        inData = false;
+        curSlotMap = [];
+        curGTDialsCol = -1; curGTDurCol = -1;
+
+        // Parse slot columns from DIALS SHEET header row
+        // Sheet structure: DIALS SHEET | ZONE | SlotLabel | (empty) | SlotLabel | (empty) | Grand Total
+        // Data rows:       Name        | Dials | Duration  | Dials   | Duration  | Dials   | Duration
+        // KEY: slot header at col N => dials at col N-1, dur at col N
+        // Grand Total header at col N => gt_dials at col N-1, gt_dur at col N
+        var col = 2; // start after zone name (col 1)
+        while (col < row.length) {
+          var hdr = (row[col]||'').trim();
+          if (!hdr) { col++; continue; }
+          var hdrU = hdr.toUpperCase().replace(/\s/g,'');
+          if (hdrU.indexOf('GRANDTOTAL')>=0 || hdrU === 'TOTAL') {
+            // Grand Total: dials at col-1, dur at col (but skip if col-1 already used)
+            curGTDialsCol = col - 1;
+            curGTDurCol   = col;
+            col += 1;
+          } else {
+            var slotIdx = timeToSlot(hdr);
+            if (slotIdx >= 0) {
+              // Slot header at col N: dials at col N-1, dur at col N
+              curSlotMap.push({dialCol: col-1, durCol: col, slot: slotIdx});
+              col += 1; // just skip the header; next non-empty col is next header
+            } else {
+              col++;
+            }
+          }
+        }
+      }
+      continue;
+    }
+
+    if (!cur) continue;
+
+    // ── Caller Name header row: skip ──
+    if (f==='Caller Name'||f==='COUNTUNIQUE of Phone') { inData=true; continue; }
+    if (!inData||!f) continue;
+
+    var isGrand = /grand\s*total/i.test(f);
+
+    // Build a normalised 18-element slots array + grand total
+    var slots = emptySlotArray();
+    var sm, dialVal, durVal, si2;
+
+    if (curSlotMap.length > 0) {
+      // Use column map from header
+      for (var mi=0;mi<curSlotMap.length;mi++) {
+        sm = curSlotMap[mi];
+        si2 = sm.slot;
+        dialVal = cleanInt(row[sm.dialCol]);
+        durVal  = cleanDur(row[sm.durCol]);
+        if (dialVal!==null) slots[si2*2]   = dialVal;
+        if (durVal!==null)  slots[si2*2+1] = durVal;
+      }
+      // Grand total from mapped columns
+      var gtDials = (curGTDialsCol>=0) ? cleanInt(row[curGTDialsCol]) : null;
+      var gtDur   = (curGTDurCol>=0)   ? cleanDur(row[curGTDurCol])   : null;
+
+      if (isGrand) {
+        // Also fill slotTotals
+        for (var mi2=0;mi2<curSlotMap.length;mi2++) {
+          sm = curSlotMap[mi2];
+          si2 = sm.slot;
+          dialVal = cleanInt(row[sm.dialCol]);
+          durVal  = cleanDur(row[sm.durCol]);
+          if (dialVal!==null) zones[cur].slotTotals[si2*2]   = dialVal;
+          if (durVal!==null)  zones[cur].slotTotals[si2*2+1] = durVal;
+        }
+        zones[cur].grandTotal = [gtDials, gtDur||'—'];
+      } else {
+        zones[cur].agents.push([f].concat(slots).concat([gtDials, gtDur]));
+      }
+    } else {
+      // Fallback: legacy 19-col format (9 slots hardcoded)
+      var legSlots=[], s2b, di2, d2, du2;
+      for (s2b=0;s2b<9;s2b++) {
+        di2=1+s2b*2;
+        d2 =(row[di2]  ||'').trim(); du2=(row[di2+1]||'').trim();
+        legSlots.push((d2 &&d2 !=='#N/A'&&d2 !=='')?parseInt(d2) :null);
+        legSlots.push((du2&&du2!=='#N/A'&&du2!=='')?du2:null);
+      }
+      var lgtd=cleanInt(row[19]), lgtu=cleanDur(row[20]);
+      if (isGrand) { zones[cur].slotTotals=legSlots; zones[cur].grandTotal=[lgtd,lgtu||'—']; }
+      else zones[cur].agents.push([f].concat(legSlots).concat([lgtd,lgtu]));
+    }
+  }
+  return zones;
+}
+
+function hideStat(){ var e=document.getElementById('pstat'); if(e) e.style.display='none'; }
+
+function doParse() {
+  var raw=(document.getElementById('pastebox').value||'').trim();
+  var st=document.getElementById('pstat');
+  st.style.display='none';
+  if (!raw) { st.className='pstat err'; st.textContent='Please paste your sheet data first.'; st.style.display='block'; return; }
+  try {
+    var zones=parseTSV(raw);
+    var found=ORDER.filter(function(z){ return zones[z]&&(zones[z].agents||[]).length>0; });
+    if (!found.length) { st.className='pstat err'; st.innerHTML='No zones found. Ensure rows start with <b>DIALS SHEET</b> + zone name.'; st.style.display='block'; return; }
+    buildAll(zones);
+    var d=new Date();
+    document.getElementById('nav-date').textContent=d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    st.className='pstat ok';
+    var chips=found.map(function(z){ return '<span class="zchip '+ZBADGE[z]+'">'+(ZLAB[z]||z)+'</span>'; }).join('');
+    st.innerHTML='✓ Dashboard built! Zones detected: <div class="zchips">'+chips+'</div>';
+    st.style.display='block';
+    showPg('d',document.getElementById('tab-d'));
+  } catch(err) { st.className='pstat err'; st.textContent='Error: '+err.message; st.style.display='block'; }
+}
+
+// ── DEFAULT DATA ──
+var N=null;
+buildAll({
+  south:{grandTotal:[975,'15:30:39'],slotTotals:[183,'2:25:20',148,'2:10:24',94,'1:38:10',119,'2:37:26',109,'1:32:10',174,'2:03:51',160,'1:53:17',95,'1:10:01',N,N],agents:[['Velugu Manoj Yadav',15,'0:16:07',8,'0:08:11',9,'0:14:47',5,'0:25:44',1,'0:07:19',9,'0:10:31',11,'0:11:05',9,'0:10:38',N,N,60,'1:44:22'],['Manohar Krishna Challagundla',8,'0:25:18',6,'0:11:15',1,'0:02:50',14,'0:11:23',10,'0:01:41',9,'0:13:01',10,'0:04:46',6,'0:17:32',N,N,62,'1:27:46'],['Deekshitha Rai G J',28,'0:15:36',15,'0:26:45',4,'0:13:48',5,'0:06:15',3,'0:03:47',5,'0:06:37',9,'0:10:18',1,'0:03:21',N,N,63,'1:26:27'],['Akshay Kumar Rana',9,'0:11:07',12,'0:02:14',7,'0:11:53',8,'0:23:38',3,'0:14:12',6,'0:05:40',7,'0:07:15',8,'0:01:47',N,N,47,'1:17:46'],['Bharathi Vyshalli',1,'0:07:23',3,'0:07:14',5,'0:15:40',14,'0:10:57',7,'0:01:32',21,'0:26:46',10,'0:04:35',8,'0:02:13',N,N,61,'1:16:20'],['Shashikala',15,'0:08:35',9,'0:08:25',5,'0:02:59',5,'0:03:38',9,'0:17:26',18,'0:04:13',6,'0:20:40',9,'0:08:04',N,N,70,'1:14:00'],['Nehali M Shingadi',24,'0:04:48',15,'0:03:47',4,'0:04:03',8,'0:32:52',2,'0:09:35',1,'0:00:57',9,'0:07:25',9,'0:06:10',N,N,68,'1:09:37'],['Thanuja K',18,'0:06:49',14,'0:11:54',11,'0:03:38',10,'0:18:04',20,'0:07:59',18,'0:14:02',25,'0:02:47',1,'0:01:13',N,N,113,'1:06:26'],['Kavitha R',17,'0:09:11',13,'0:10:46',12,'0:08:05',11,'0:01:11',17,'0:10:13',13,'0:08:42',14,'0:10:00',8,'0:05:47',N,N,92,'1:03:55'],['Monisha',16,'0:10:03',19,'0:06:10',10,'0:02:57',7,'0:04:48',11,'0:02:29',12,'0:21:21',10,'0:10:24',8,'0:03:17',N,N,83,'1:01:29'],['Anitha V',14,'0:12:19',11,'0:08:21',4,'0:01:25',16,'0:07:25',6,'0:05:39',30,'0:01:12',24,'0:14:41',11,'0:04:43',N,N,106,'0:55:45'],['Mubarak Pasha',5,'0:13:28',9,'0:18:33',12,'0:07:11',12,'0:07:20',11,'0:01:03',16,'0:04:00',8,'0:00:17',9,'0:01:05',N,N,74,'0:52:57'],['Abrar Khan',N,N,4,'0:01:19',7,'0:05:08',3,'0:04:11',7,'0:09:15',16,'0:06:49',15,'0:08:02',7,'0:02:58',N,N,47,'0:37:42'],['Satish Kumar',9,'0:04:31',7,'0:04:43',3,'0:03:46',1,'0:00:00',1,'0:00:00',N,N,N,N,N,N,N,N,19,'0:13:00'],['Rahul Gowda R',2,'0:00:00',3,'0:00:47',N,N,N,N,1,'0:00:00',N,N,N,N,N,N,1,'0:01:13',6,'0:02:00'],['Chandana R',2,'0:00:05',N,N,N,N,N,N,N,N,N,N,2,'0:01:02',N,N,N,N,4,'0:01:07']]},
+  north:{grandTotal:[687,'9:21:32'],slotTotals:[97,'1:28:17',87,'1:03:09',89,'1:04:20',109,'1:11:09',84,'0:49:55',85,'1:18:51',105,'1:25:01',82,'1:00:50',N,N],agents:[['Shashank Pandey',6,'0:15:11',15,'0:14:15',23,'0:17:33',14,'0:24:32',16,'0:10:36',8,'0:13:56',17,'0:10:33',13,'0:02:59',N,N,101,'1:49:35'],['Harshita Goyal',31,'0:15:30',20,'0:13:12',13,'0:03:26',6,'0:00:21',10,'0:00:00',14,'0:18:20',19,'0:28:51',16,'0:09:30',N,N,128,'1:29:10'],['Prerona',13,'0:02:18',12,'0:12:09',16,'0:10:31',23,'0:15:18',14,'0:05:07',10,'0:17:00',9,'0:12:32',10,'0:04:10',N,N,92,'1:19:05'],['Riya Rai',14,'0:17:43',12,'0:14:27',5,'0:01:52',22,'0:04:24',10,'0:04:13',17,'0:05:15',17,'0:11:23',14,'0:13:20',N,N,103,'1:12:37'],['Ashik Kumar P',2,'0:18:05',8,'0:01:27',13,'0:08:57',12,'0:09:47',15,'0:01:26',10,'0:00:00',9,'0:12:04',4,'0:07:52',N,N,67,'0:59:38'],['nikhilsingh',1,'0:00:00',4,'0:02:36',5,'0:12:06',11,'0:07:04',N,N,9,'0:12:43',12,'0:07:15',4,'0:04:44',N,N,40,'0:46:28'],['Rajat Kumar Chaubey',8,'0:14:21',9,'0:05:03',N,N,4,'0:00:00',4,'0:06:24',14,'0:10:03',10,'0:00:59',4,'0:03:14',N,N,49,'0:40:04'],['Ankit Raj',4,'0:01:36',7,'0:00:00',5,'0:05:26',8,'0:05:09',8,'0:18:49',3,'0:01:34',8,'0:00:05',3,'0:01:58',N,N,46,'0:34:37'],['Abhishek Kumawat',18,'0:03:33',N,N,9,'0:04:29',8,'0:03:46',7,'0:03:20',N,N,4,'0:01:19',14,'0:13:03',N,N,60,'0:29:30'],['chandan.k',N,N,N,N,N,N,1,'0:00:48',N,N,N,N,N,N,N,N,N,N,1,'0:00:48']]},
+  west:{grandTotal:[1243,'17:42:38'],slotTotals:[211,'3:44:55',150,'2:58:13',169,'1:45:27',192,'3:00:50',191,'2:13:56',173,'1:43:53',127,'1:09:12',127,'1:06:12',N,N],agents:[['Archana Raju Mane',6,'0:15:06',3,'0:04:49',10,'0:19:11',16,'0:18:48',16,'0:06:34',12,'0:14:41',15,'0:13:11',7,'0:10:17',N,N,72,'1:42:37'],['Mamta Lihare',11,'0:38:12',4,'0:14:06',5,'0:09:17',6,'0:14:23',19,'0:07:52',6,'0:00:00',8,'0:10:19',5,'0:01:07',N,N,52,'1:35:16'],['Suraj Ashok Pal',22,'0:40:35',2,'0:07:48',9,'0:02:18',10,'0:18:20',12,'0:03:11',20,'0:03:57',16,'0:04:03',4,'0:08:59',N,N,92,'1:29:11'],['Aniket',9,'0:15:04',3,'0:27:19',11,'0:11:33',26,'0:01:32',47,'0:05:46',32,'0:05:42',7,'0:09:34',15,'0:02:54',N,N,145,'1:19:24'],['Sanket Londhe',8,'0:20:23',1,'0:00:00',N,N,7,'0:12:27',11,'0:29:23',5,'0:10:10',16,'0:06:52',N,N,N,N,44,'1:19:15'],['Payal Roy',19,'0:09:47',9,'0:16:40',11,'0:08:13',10,'0:20:11',7,'0:06:09',3,'0:06:01',16,'0:01:22',5,'0:08:33',N,N,76,'1:16:56'],['Riya Praval Mukharji',16,'0:07:10',6,'0:26:56',1,'0:08:03',7,'0:19:58',2,'0:00:00',8,'0:09:02',2,'0:01:14',11,'0:03:08',N,N,51,'1:15:31'],['Aman',23,'0:21:55',13,'0:11:42',13,'0:02:43',7,'0:17:33',7,'0:04:54',18,'0:06:03',2,'0:04:06',17,'0:02:50',N,N,96,'1:11:46'],['Amruta',9,'0:08:26',5,'0:02:36',9,'0:07:19',5,'0:22:20',6,'0:12:51',9,'0:02:39',11,'0:06:05',6,'0:00:36',N,N,57,'1:02:52'],['Vrushab',14,'0:04:54',6,'0:16:15',14,'0:02:20',10,'0:05:23',5,'0:10:40',8,'0:17:13',1,'0:00:00',8,'0:03:55',N,N,57,'1:00:40'],['Sakshika Suman',30,'0:05:53',14,'0:09:51',19,'0:13:05',5,'0:07:48',15,'0:14:19',17,'0:04:42',4,'0:00:28',8,'0:01:03',N,N,108,'0:57:09'],['Safia Mariam',1,'0:06:20',7,'0:00:43',12,'0:06:03',16,'0:04:39',5,'0:08:26',3,'0:07:26',2,'0:00:38',18,'0:08:31',N,N,63,'0:42:46'],['rutika dhumal',2,'0:00:00',16,'0:09:21',10,'0:01:28',29,'0:09:10',13,'0:03:12',7,'0:02:52',9,'0:03:11',3,'0:11:35',N,N,79,'0:40:49'],['Karan Pawar',23,'0:04:50',28,'0:06:59',24,'0:02:25',2,'0:00:00',6,'0:14:00',5,'0:08:51',3,'0:00:31',9,'0:01:00',N,N,99,'0:38:36'],['Sanmoy Banerjee',8,'0:05:01',10,'0:02:03',10,'0:09:29',8,'0:05:06',8,'0:03:18',8,'0:02:12',8,'0:06:46',9,'0:01:44',N,N,52,'0:35:39'],['TEJASVINI',7,'0:14:01',5,'0:07:19',3,'0:01:06',7,'0:02:42',4,'0:01:23',N,N,6,'0:00:52',1,'0:00:00',N,N,32,'0:27:23'],['Sagar Suresh Jalkote',2,'0:07:18',18,'0:13:46',8,'0:00:54',21,'0:00:30',8,'0:01:58',12,'0:02:22',1,'0:00:00',1,'0:00:00',N,N,67,'0:26:48'],['Jayraj Bansode',1,'0:00:00',N,N,N,N,N,N,N,N,N,N,N,N,N,N,N,N,1,'0:00:00']]},
+  final:{grandTotal:[2983,'43:31:26'],slotTotals:[512,'7:44:17',404,'6:19:12',361,'4:34:03',427,'7:12:36',384,'4:36:01',435,'5:17:40',399,'4:28:09',317,'3:19:28',N,N],agents:[['Shashank Pandey',6,'0:15:11',15,'0:14:15',23,'0:17:33',14,'0:24:32',16,'0:10:36',8,'0:13:56',17,'0:10:33',13,'0:02:59',N,N,101,'1:49:35'],['Velugu Manoj Yadav',15,'0:16:07',8,'0:08:11',9,'0:14:47',5,'0:25:44',1,'0:07:19',9,'0:10:31',11,'0:11:05',9,'0:10:38',N,N,60,'1:44:22'],['Archana Raju Mane',6,'0:15:06',3,'0:04:49',10,'0:19:11',16,'0:18:48',16,'0:06:34',12,'0:14:41',15,'0:13:11',7,'0:10:17',N,N,72,'1:42:37'],['Mamta Lihare',11,'0:38:12',4,'0:14:06',5,'0:09:17',6,'0:14:23',19,'0:07:52',6,'0:00:00',8,'0:10:19',5,'0:01:07',N,N,52,'1:35:16'],['Suraj Ashok Pal',22,'0:40:35',2,'0:07:48',9,'0:02:18',10,'0:18:20',12,'0:03:11',20,'0:03:57',16,'0:04:03',4,'0:08:59',N,N,92,'1:29:11'],['Harshita Goyal',31,'0:15:30',20,'0:13:12',13,'0:03:26',6,'0:00:21',10,'0:00:00',14,'0:18:20',19,'0:28:51',16,'0:09:30',N,N,128,'1:29:10'],['Manohar Krishna Challagundla',8,'0:25:18',6,'0:11:15',1,'0:02:50',14,'0:11:23',10,'0:01:41',9,'0:13:01',10,'0:04:46',6,'0:17:32',N,N,62,'1:27:46'],['Deekshitha Rai G J',28,'0:15:36',15,'0:26:45',4,'0:13:48',5,'0:06:15',3,'0:03:47',5,'0:06:37',9,'0:10:18',1,'0:03:21',N,N,63,'1:26:27'],['Aniket',9,'0:15:04',3,'0:27:19',11,'0:11:33',26,'0:01:32',47,'0:05:46',32,'0:05:42',7,'0:09:34',15,'0:02:54',N,N,145,'1:19:24'],['Sanket Londhe',8,'0:20:23',1,'0:00:00',N,N,7,'0:12:27',11,'0:29:23',5,'0:10:10',16,'0:06:52',N,N,N,N,44,'1:19:15'],['Prerona',13,'0:02:18',12,'0:12:09',16,'0:10:31',23,'0:15:18',14,'0:05:07',10,'0:17:00',9,'0:12:32',10,'0:04:10',N,N,92,'1:19:05'],['Akshay Kumar Rana',9,'0:11:07',12,'0:02:14',7,'0:11:53',8,'0:23:38',3,'0:14:12',6,'0:05:40',7,'0:07:15',8,'0:01:47',N,N,47,'1:17:46'],['Payal Roy',19,'0:09:47',9,'0:16:40',11,'0:08:13',10,'0:20:11',7,'0:06:09',3,'0:06:01',16,'0:01:22',5,'0:08:33',N,N,76,'1:16:56'],['Bharathi Vyshalli',1,'0:07:23',3,'0:07:14',5,'0:15:40',14,'0:10:57',7,'0:01:32',21,'0:26:46',10,'0:04:35',8,'0:02:13',N,N,61,'1:16:20'],['Riya Praval Mukharji',16,'0:07:10',6,'0:26:56',1,'0:08:03',7,'0:19:58',2,'0:00:00',8,'0:09:02',2,'0:01:14',11,'0:03:08',N,N,51,'1:15:31'],['Shashikala',15,'0:08:35',9,'0:08:25',5,'0:02:59',5,'0:03:38',9,'0:17:26',18,'0:04:13',6,'0:20:40',9,'0:08:04',N,N,70,'1:14:00'],['Riya Rai',14,'0:17:43',12,'0:14:27',5,'0:01:52',22,'0:04:24',10,'0:04:13',17,'0:05:15',17,'0:11:23',14,'0:13:20',N,N,103,'1:12:37'],['Aman',23,'0:21:55',13,'0:11:42',13,'0:02:43',7,'0:17:33',7,'0:04:54',18,'0:06:03',2,'0:04:06',17,'0:02:50',N,N,96,'1:11:46'],['Nehali M Shingadi',24,'0:04:48',15,'0:03:47',4,'0:04:03',8,'0:32:52',2,'0:09:35',1,'0:00:57',9,'0:07:25',9,'0:06:10',N,N,68,'1:09:37'],['Thanuja K',18,'0:06:49',14,'0:11:54',11,'0:03:38',10,'0:18:04',20,'0:07:59',18,'0:14:02',25,'0:02:47',1,'0:01:13',N,N,113,'1:06:26'],['Kavitha R',17,'0:09:11',13,'0:10:46',12,'0:08:05',11,'0:01:11',17,'0:10:13',13,'0:08:42',14,'0:10:00',8,'0:05:47',N,N,92,'1:03:55'],['Amruta',9,'0:08:26',5,'0:02:36',9,'0:07:19',5,'0:22:20',6,'0:12:51',9,'0:02:39',11,'0:06:05',6,'0:00:36',N,N,57,'1:02:52'],['Monisha',16,'0:10:03',19,'0:06:10',10,'0:02:57',7,'0:04:48',11,'0:02:29',12,'0:21:21',10,'0:10:24',8,'0:03:17',N,N,83,'1:01:29'],['Vrushab',14,'0:04:54',6,'0:16:15',14,'0:02:20',10,'0:05:23',5,'0:10:40',8,'0:17:13',1,'0:00:00',8,'0:03:55',N,N,57,'1:00:40'],['Ashik Kumar P',2,'0:18:05',8,'0:01:27',13,'0:08:57',12,'0:09:47',15,'0:01:26',10,'0:00:00',9,'0:12:04',4,'0:07:52',N,N,67,'0:59:38'],['Sakshika Suman',30,'0:05:53',14,'0:09:51',19,'0:13:05',5,'0:07:48',15,'0:14:19',17,'0:04:42',4,'0:00:28',8,'0:01:03',N,N,108,'0:57:09'],['Anitha V',14,'0:12:19',11,'0:08:21',4,'0:01:25',16,'0:07:25',6,'0:05:39',30,'0:01:12',24,'0:14:41',11,'0:04:43',N,N,106,'0:55:45'],['Mubarak Pasha',5,'0:13:28',9,'0:18:33',12,'0:07:11',12,'0:07:20',11,'0:01:03',16,'0:04:00',8,'0:00:17',9,'0:01:05',N,N,74,'0:52:57'],['nikhilsingh',1,'0:00:00',4,'0:02:36',5,'0:12:06',11,'0:07:04',N,N,9,'0:12:43',12,'0:07:15',4,'0:04:44',N,N,40,'0:46:28'],['Sakina',10,'0:00:17',12,'0:02:21',8,'0:06:06',4,'0:23:11',N,N,3,'0:11:05',7,'0:00:39',13,'0:02:25',N,N,57,'0:46:04'],['Safia Mariam',1,'0:06:20',7,'0:00:43',12,'0:06:03',16,'0:04:39',5,'0:08:26',3,'0:07:26',2,'0:00:38',18,'0:08:31',N,N,63,'0:42:46'],['rutika dhumal',2,'0:00:00',16,'0:09:21',10,'0:01:28',29,'0:09:10',13,'0:03:12',7,'0:02:52',9,'0:03:11',3,'0:11:35',N,N,79,'0:40:49'],['Rajat Kumar Chaubey',8,'0:14:21',9,'0:05:03',N,N,4,'0:00:00',4,'0:06:24',14,'0:10:03',10,'0:00:59',4,'0:03:14',N,N,49,'0:40:04'],['Karan Pawar',23,'0:04:50',28,'0:06:59',24,'0:02:25',2,'0:00:00',6,'0:14:00',5,'0:08:51',3,'0:00:31',9,'0:01:00',N,N,99,'0:38:36'],['Abrar Khan',N,N,4,'0:01:19',7,'0:05:08',3,'0:04:11',7,'0:09:15',16,'0:06:49',15,'0:08:02',7,'0:02:58',N,N,47,'0:37:42'],['Sanmoy Banerjee',8,'0:05:01',10,'0:02:03',10,'0:09:29',8,'0:05:06',8,'0:03:18',8,'0:02:12',8,'0:06:46',9,'0:01:44',N,N,52,'0:35:39'],['Ankit Raj',4,'0:01:36',7,'0:00:00',5,'0:05:26',8,'0:05:09',8,'0:18:49',3,'0:01:34',8,'0:00:05',3,'0:01:58',N,N,46,'0:34:37'],['Abhishek Kumawat',18,'0:03:33',N,N,9,'0:04:29',8,'0:03:46',7,'0:03:20',N,N,4,'0:01:19',14,'0:13:03',N,N,60,'0:29:30'],['TEJASVINI',7,'0:14:01',5,'0:07:19',3,'0:01:06',7,'0:02:42',4,'0:01:23',N,N,6,'0:00:52',1,'0:00:00',N,N,32,'0:27:23'],['Sagar Suresh Jalkote',2,'0:07:18',18,'0:13:46',8,'0:00:54',21,'0:00:30',8,'0:01:58',12,'0:02:22',1,'0:00:00',1,'0:00:00',N,N,67,'0:26:48'],['Satish Kumar',9,'0:04:31',7,'0:04:43',3,'0:03:46',1,'0:00:00',1,'0:00:00',N,N,N,N,N,N,N,N,19,'0:13:00'],['Bharath C',9,'0:05:28',5,'0:05:05',N,N,N,N,N,N,N,N,N,N,N,N,N,N,14,'0:10:33'],['Rahul Gowda R',2,'0:00:00',3,'0:00:47',N,N,N,N,1,'0:00:00',N,N,N,N,N,N,1,'0:01:13',6,'0:02:00'],['Chandana R',2,'0:00:05',N,N,N,N,N,N,N,N,N,N,2,'0:01:02',N,N,N,N,4,'0:01:07'],['chandan.k',N,N,N,N,N,N,1,'0:00:48',N,N,N,N,N,N,N,N,N,N,1,'0:00:48'],['Jayraj Bansode',1,'0:00:00',N,N,N,N,N,N,N,N,N,N,N,N,N,N,N,N,1,'0:00:00']]},
+  evenpay:{grandTotal:[78,'0:56:37'],slotTotals:[21,'0:05:45',19,'0:07:26',9,'0:06:06',7,'0:23:11',N,N,3,'0:11:05',7,'0:00:39',13,'0:02:25',N,N],agents:[['Sakina',10,'0:00:17',12,'0:02:21',8,'0:06:06',4,'0:23:11',N,N,3,'0:11:05',7,'0:00:39',13,'0:02:25',N,N,57,'0:46:04'],['Bharath C',9,'0:05:28',5,'0:05:05',N,N,N,N,N,N,N,N,N,N,N,N,N,N,14,'0:10:33'],['TEJA REDDY',1,'0:00:00',2,'0:00:00',1,'0:00:00',3,'0:00:00',N,N,N,N,N,N,N,N,N,N,6,'0:00:00'],['Jai Ganesh',1,'0:00:00',N,N,N,N,N,N,N,N,N,N,N,N,N,N,N,N,1,'0:00:00']]}
+});
+</script>
+</body>
+</html>
